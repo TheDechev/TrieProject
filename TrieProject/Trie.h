@@ -12,16 +12,18 @@ typedef int DataType;
 class Trie {
 	trieNode* root;
 public:
-	Trie();
-	~Trie();
+	Trie() { root = new trieNode; }
+	~Trie() { delete root; }
 	void MakeEmpty();
 	bool isEmpty();
-	trieNode* getRoot() { return root; }
 	DataType Find(KeyType key);
-	void Insert(KeyType key, DataType data);
+	void Insert(KeyType key, DataType data=0);
 	void Delete(KeyType key);
+
+	trieNode* getRoot() { return root; }
 	string approxFind(string &Str);
 	string prefixMatch(string &Str);
+	void printTree();
 
 };
 

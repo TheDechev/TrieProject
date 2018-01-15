@@ -10,23 +10,28 @@ typedef int DataType;
 
 #define SIZE 26
 class trieNode {
-private:
 
-	trieNode* next;
+private:
 	KeyType key; // name
 	DataType data; // num
-	trieNode* siblings[SIZE] = { NULL };
-	char nextKey = '0';
+	trieNode* children[SIZE] = { NULL };
 public:
-	trieNode* getNext() { return next; };
+	enum { EQUAL, NEW_KEY, OLD_KEY, BOTH_KEYS };
+	trieNode() { data = 0; }
 	DataType getData() { return data; }
 	KeyType getKey() { return key;}
-	trieNode* getSibling(int index) { return siblings[index]; }
-	void setSibling(int index, trieNode* node) { siblings[index] = node; }
-	char getNextKey() { return nextKey; }
-	void setData(DataType _data) { data = _data; }
-	void setKey(KeyType _key, char _nextKey) { key = _key; nextKey = _nextKey; }
-	void DeleteNode();
+	void setKey(KeyType _key) { key = _key; }
+	trieNode* getChild(int index) { return children[index]; }
+	void setChild(int index, trieNode* node) { children[index] = node; }
+	void increaseData() { data++; }
+	void DeleteNode(KeyType key);
+	int compareKeys(KeyType newKey, int& whichKey);
+	void updateNode(KeyType newKey, int whichKey, int index);
+	trieNode* createNode(KeyType _key, int startIndex);
+	void mergeChildren(trieNode* node);
+	void resetData() { data = 0; }
+	bool hasChildren();
+	void printNode(string previous);
 
 
 };

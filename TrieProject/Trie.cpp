@@ -1,44 +1,66 @@
 #include "Trie.h"
 
-void Trie::MakeEmpty()
-{
-	trieNode* temp;
-	char ch;
-	if (root) {
-		root->DeleteNode();
-	}
-
-}
+//void Trie::MakeEmpty()
+//{
+//	trieNode* temp;
+//	char ch;
+//	if (root) {
+//		root->DeleteNode();
+//	}
+//
+//}
 
 bool Trie::isEmpty()
 {
-	if (root)
-		return true;
-	return false;
+	return  (root) ? true : false;
 }
 
 void Trie::Insert(KeyType key, DataType data)
 {
-	trieNode* node, *temp = root;
-	int index = 0;
-	while (key[index] != '\0') {
-
-		if (temp->getSibling[key[0] - '0']) //check if existts
+	trieNode* temp = root, *current;
+	char ch;
+	int index = 0, whichKey = 0;
+	ch = key[index];
+	while(ch!='\0'){
+		current = temp->getChild(ch - 'a');
+		if (current) // there's a child in this space
 		{
-
+			index = current->compareKeys(key, whichKey);
+			current->updateNode(key, whichKey, index);
+			break;
 		}
-		else
-		{
-			node = new trieNode;
-			temp->setSibling[index] = node;
-			temp->setKey(key,key[index+1]);
-			temp = node->getNext();
-
-			
-
+		else {
+			current = new trieNode;
+			current->setKey(key);
+			current->increaseData();
+			temp->setChild(ch-'a', current);
+			break;
 		}
 		index++;
+		ch = key[index];
 	}
 
+}
+
+void Trie::Delete(KeyType key)
+{
+	trieNode* current = root->getChild(key[0] - 'a');
+
+	if (!current)
+		cout << "No such child to delete" << endl;
+	else 
+		current->DeleteNode(key);
+	
+}
+
+void Trie::printTree()
+{
+	trieNode* current;
+	for (int i = 0; i < SIZE; i++) {
+		current = root->getChild(i);
+		if (current)
+			current->printNode("");
+
+	}
 
 }
