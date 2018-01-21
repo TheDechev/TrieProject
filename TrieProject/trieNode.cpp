@@ -13,7 +13,7 @@ int trieNode::DeleteNode(KeyType key)
 
 		childrenStatus = this->hasChildren();
 		if (!childrenStatus) // has no children
-		{
+		{//
 			delete this;
 			return DELETE_NODE;
 		}
