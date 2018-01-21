@@ -1,43 +1,53 @@
 #include "Trie.h"
 
-//void Trie::MakeEmpty()
-//{
-//	trieNode* temp;
-//	char ch;
-//	if (root) {
-//		root->DeleteNode();
-//	}
-//
-//}
+
+void Trie::MakeEmpty()
+{
+	if (root->hasChildren()) {
+		root->makeEmptyRec();
+	}
+	else {
+		cout << "Dictionary is empty." << endl;
+	}
+}
 
 bool Trie::isEmpty()
 {
 	return  (root) ? true : false;
 }
 
+DataType Trie::Find(KeyType key)
+{
+	if (root->getChild(key[0] - 'a')) {
+		return root->getChild(key[0] - 'a')->findRec(key);
+	}
+	else {
+		return 0;
+	}
+
+	
+}
+
 void Trie::Insert(KeyType key, DataType data)
 {
-	trieNode* temp = root, *current;
+	trieNode *current;
 	char ch;
 	int index = 0, whichKey = 0;
 	ch = key[index];
 	while(ch!='\0'){
-		current = temp->getChild(ch - 'a');
+		current = root->getChild(ch - 'a');
 		if (current) // there's a child in this space
 		{
-			index = current->compareKeys(key, whichKey);
-			current->updateNode(key, whichKey, index);
+			current->updateNode(key);
 			break;
 		}
 		else {
 			current = new trieNode;
 			current->setKey(key);
 			current->increaseData();
-			temp->setChild(ch-'a', current);
+			root->setChild(ch-'a', current);
 			break;
 		}
-		index++;
-		ch = key[index];
 	}
 
 }
@@ -53,6 +63,32 @@ void Trie::Delete(KeyType key)
 	
 }
 
+KeyType Trie::approxFind(KeyType & Str)
+{
+	bool isData = 0;
+	int deleteStatus;
+	string check;
+	if (root->getChild(Str[0] - 'a')) {
+		check=root->getChild(Str[0] - 'a')->approxFindRec(Str,isData);
+		if (check == "0") {
+			deleteStatus = root->getChild(Str[0] - 'a')->DeleteNode(Str);
+			if (deleteStatus == trieNode::DELETE_NODE)
+				root->setChild(Str[0] - 'a', NULL);
+		}
+
+		if (isData) {
+			cout << stoi(check) + 1<< endl;
+			return WORD_FOUND;
+		}
+		else
+			return check;
+	}
+	else {
+		return WORD_NOT_FOUND;
+	}
+
+}
+
 void Trie::printTree()
 {
 	trieNode* current;
@@ -60,7 +96,45 @@ void Trie::printTree()
 		current = root->getChild(i);
 		if (current)
 			current->printNode("");
+	}
+}
 
+void Trie::fixWord(KeyType & key)
+{
+	int index = 0;
+	char ch = key[index];
+	while (ch != '\0') {
+		if (ch >= 'a' && ch <= 'z') {}
+
+		else if (ch >= 'A' && ch <= 'Z') {
+			key[index] = tolower(key[index]);
+		}
+		else {
+			key = key.substr(0,index) + key.substr(index + 1);
+			index--;
+		}
+		index++;
+		ch = key[index];
+	}
+}
+
+void Trie::oneWordAtATime(KeyType & original, KeyType & newWord)
+{
+	int len = original.length();
+	int index = 0;
+	char ch = original[index];
+	while (ch != ' ' && len>0) {
+		len--;
+		index++;
+		ch = original[index];
 	}
 
+	newWord = original.substr(0, index);
+	if (len == 0)
+		original = "";
+	else
+		original = original.substr(index + 1);
+
 }
+
+

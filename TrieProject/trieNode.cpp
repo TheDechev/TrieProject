@@ -1,13 +1,13 @@
 #include "trieNode.h"
 
-void trieNode::DeleteNode(KeyType key)
+int trieNode::DeleteNode(KeyType key)
 {
 	trieNode* current;
-	int whichKey, index, childrenStatus;
+	int check,whichKey, index, childrenStatus;
 	index = this->compareKeys(key,whichKey);
 	
 	if (key[0] == '\0')
-		return;
+		return DONT_DELETE;
 
 	if (whichKey == EQUAL) {
 
@@ -15,14 +15,14 @@ void trieNode::DeleteNode(KeyType key)
 		if (!childrenStatus) // has no children
 		{
 			delete this;
-			return;
+			return DELETE_NODE;
 		}
 		else {
 			if (this->getData() > 0) // found a sub word 
 				this->resetData();
 			else 
 			{
-				cout << "NO SUCH CHILD TO DELETE!" << endl;
+				return DONT_DELETE;
 			}
 
 		}
@@ -31,23 +31,20 @@ void trieNode::DeleteNode(KeyType key)
 	{
 		current = this->getChild(key[index] - 'a');
 		if (!current) { // has no relevant child
-			cout << "NO SUCH CHILD TO DELETE!" << endl;
-			return;
+			return DONT_DELETE;
 		}
 		else {
-			current->DeleteNode(key.substr(index));
+			check=current->DeleteNode(key.substr(index));
+			if (check == DELETE_NODE)
+				this->setChild(key[index] - 'a', NULL);
 			if (!(current->hasChildren()) && current->getData() == 0) {
 				delete this;
+				return DELETE_NODE;
 			}
 		}
 	}
-	else if (whichKey == NEW_KEY) // the new key is smaller and has ended
-	{
-		cout << "NO SUCH CHILD TO DELETE!" << endl;
-	}
-	else  // both keys haven't ended and have simillar start
-	{
-		cout << "NO SUCH CHILD TO DELETE!" << endl;
+	else {
+		return DONT_DELETE;
 	}
 
 }
@@ -82,44 +79,51 @@ int trieNode::compareKeys(KeyType newKey, int& whichKey)
 	return index;
 }
 
-void trieNode::updateNode(KeyType newKey, int whichKey, int index)
+void trieNode::updateNode(KeyType key)
 {	
-	int newWhich, newIndex;
+	int index, whichKey;
 	trieNode* current, *nodeNew, *nodeOld;
-	KeyType beginKeyOld, endKeyOld, endKeyNew = newKey.substr(index);
-
+	KeyType endKeyOld, endKeyNew, beginKeyOld;
+	index = this->compareKeys(key, whichKey);
+	endKeyNew = key.substr(index);
 	if (whichKey == EQUAL) {
 		this->increaseData();
 	}
+
 	else if (whichKey == OLD_KEY) {
-		current = this->getChild(newKey[index] - 'a');
-		if (current == NULL) {
-			this->setChild(newKey[index] - 'a', createNode(newKey, index));
-			this->getChild(newKey[index]-'a')->increaseData();
+		current = this->getChild(key[index] - 'a');
+		if (current) {
+			current->updateNode(key.substr(index));
 		}
 		else {
-			newIndex=current->compareKeys(endKeyNew, newWhich);
-			current->updateNode(endKeyNew, newWhich, newIndex);
+			this->setChild(key[index] - 'a', createNode(key, index));
+			this->getChild(key[index] - 'a')->increaseData();
 		}
 	}
+
 	else if(whichKey==NEW_KEY) // the new key is smaller and has ended
 	{
 		endKeyOld = this->getKey().substr(index);
-		this->setKey(newKey);
-		this->increaseData();
+		this->setKey(key);
 		nodeOld = createNode(endKeyOld, 0);
-		// merge the sons 
+		nodeOld->setData(this->getData());
+		this->setData(1);
+		this->mergeChildren(nodeOld);
 		this->setChild(endKeyOld[0] - 'a', nodeOld);
 
 
 	}
 	else  // both keys haven't ended and have simillar start
 	{
+
 		endKeyOld = this->getKey().substr(index);
-		beginKeyOld = this->getKey().substr(0, index-1);
+		beginKeyOld = this->getKey().substr(0, index);
 		this->setKey(beginKeyOld);
 		nodeOld = createNode(endKeyOld, 0);
+		nodeOld->setData(this->getData());
 		nodeNew = createNode(endKeyNew, 0);
+		nodeNew->increaseData();
+		this->resetData();
 		this->mergeChildren(nodeOld);
 		this->setChild(endKeyOld[0] - 'a', nodeOld);
 		this->setChild(endKeyNew[0] - 'a', nodeNew);
@@ -159,7 +163,7 @@ void trieNode::printNode(string previous)
 	trieNode* current;
 	previous += this->getKey();
 	if (this->getData() != 0) {
-		cout << previous <<" appears :" << this->getData() << endl;
+		cout << previous <<" appears: " << this->getData() << endl;
 	}
 
 	for (int i = 0; i < SIZE; i++) {
@@ -168,6 +172,121 @@ void trieNode::printNode(string previous)
 			this->getChild(i)->printNode(previous);
 		}
 			
+	}
+}
+
+KeyType trieNode::approxFindRec(KeyType& Str,bool& isData)
+{
+	KeyType previous, check, temp;
+	trieNode* current = this;
+	int whichKey, index;
+	index = current->compareKeys(Str, whichKey);
+	previous = current->getKey();
+
+	if (whichKey == trieNode::EQUAL) {
+
+		if (current->getData() == 0){
+			findFirstSon(current, previous);
+			return previous;
+		}
+
+		else {
+			isData = true;
+			current->setData(current->getData() - 1);
+			return to_string(current->getData());
+		}
+	}
+
+	else if (whichKey == trieNode::OLD_KEY)
+	{
+		if (current->getChild(Str[index] - 'a'))
+		{
+			temp = Str.substr(index);
+			check=current->getChild(Str[index] - 'a')->approxFindRec(temp,isData);
+			
+			if (isData)
+				return check;
+			else
+				return previous + check;
+		}
+		else { // after the prefix has  different 
+			findFirstSon(current, previous);
+			return previous;
+		}
+
+	}
+
+	else if (whichKey == trieNode::NEW_KEY) // the new key is smaller and has ended
+	{
+		findFirstSon(current, previous);
+		return previous;
+	}
+	else  // both keys haven't ended and have simillar start
+	{
+		findFirstSon(current, previous);
+		return previous;
+	}
+	return "0";
+}
+
+void trieNode::findFirstSon(trieNode * current, KeyType & previous)
+{
+	bool flag = 0;
+	while (current->getData() == 0) {
+		for (int i = 0; i < SIZE; i++) {
+			if (current->getChild(i)) {
+				flag = 1;
+				current = current->getChild(i);
+				previous += current->getKey();
+				break;
+			}
+		}
+		if(flag==0)
+			previous = WORD_NOT_FOUND;
+
+	}
+
+
+}
+
+DataType trieNode::findRec(KeyType key)
+{
+	int whichKey, index;
+
+	index=this->compareKeys(key, whichKey);
+
+	if (whichKey == trieNode::EQUAL) {
+		return 	this->getData();
+	}
+	else if (whichKey == trieNode::OLD_KEY)
+	{
+		if (this->getChild(key[index] - 'a')) {
+			return this->getChild(key[index] - 'a')->findRec(key.substr(index));
+		}
+		else {
+			return NOT_FOUND;
+		}
+		
+	}
+
+	else 
+	{
+		return NOT_FOUND;
+	}
+
+}
+
+void trieNode::makeEmptyRec()
+{
+	trieNode* current;
+
+	for (int i = 0; i < SIZE; i++) {
+		current = this->getChild(i);
+		if (current) {
+			current->makeEmptyRec();
+			delete current;
+			this->setChild(i, NULL);
+		}
 	}
 }
 
