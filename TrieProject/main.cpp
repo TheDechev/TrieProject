@@ -1,4 +1,10 @@
-/*
+/* In this implementation of the Trie data structure each node contains the largest string possible.
+So that if there are two words with a similar prefix, the prefix will be stored in a node , and the different postfixes will be
+inserted inside the array of trieNodes that is stored in the similar prefix node.
+(The first letter of each postfix represents the cell in the array)
+For example: Avi and Avraham - ''Av'' is the longest prefix, so it'll be stored in the first node, and ''i'' ,'' raham''  will be nodes inside the trieNode array of Av. 
+(i -> index 8, raham -> index 17)
+
 Data structure
 Programming exrecise
 Trie ADT
@@ -30,7 +36,7 @@ int main() {
 			}
 		}
 	}
-
+	
 	currentWord = "";
 
 	//Scan for the second paragraph
@@ -43,6 +49,7 @@ int main() {
 			if (currentWord == ".")
 				break;
 			else {
+				T.fixWord(currentWord);
 				KeyType check = T.approxFind(currentWord);
 				if (check == currentWord)
 					cout << check << endl;

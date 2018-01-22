@@ -8,29 +8,29 @@ Eran Atia	  - ID 204122055
 
 #include "Trie.h"
 
+// Deletes all the nodes in the tree and making it ''empty''
 void Trie::MakeEmpty()
 {
 	if (root->hasChildren()) {
 		root->makeEmptyRec();
 	}
-	else {
+	else 
 		cout << "Dictionary is empty." << endl;
-	}
 }
 
+//Checks if the Trie has any data in it
 bool Trie::isEmpty()
 {
 	return  (root) ? true : false;
 }
 
+//Searches in the Trie for a specific key
 DataType Trie::Find(KeyType key)
 {
-	if (root->getChild(key[0] - 'a')) {
+	if (root->getChild(key[0] - 'a')) 
 		return root->getChild(key[0] - 'a')->findRec(key);
-	}
-	else {
+	else 
 		return 0;
-	}
 }
 
 void Trie::Insert(KeyType key, DataType data)
@@ -50,13 +50,14 @@ void Trie::Insert(KeyType key, DataType data)
 		else {
 			current = new trieNode;
 			current->setKey(key);
-			current->increaseData();
+			current->setData(current->getData()+1); // increases data by 1
 			root->setChild(ch-'a', current);
 			break;
 		}
 	}
 }
 
+//Deletes the given key from the Trie (if exists)
 void Trie::Delete(KeyType key)
 {
 	trieNode* current = root->getChild(key[0] - 'a');
@@ -67,6 +68,10 @@ void Trie::Delete(KeyType key)
 		current->DeleteNode(key);
 }
 
+
+/* Searches in the Trie for a given KeyType.
+If the given KeyType has been found, the data = number of times it appears in the dictionary will be printed and decreased by 1.
+Otherwise, it'll suggest the first alphabetical KeyType with the longest simillar prefix. */
 KeyType Trie::approxFind(KeyType & Str)
 {
 	bool isData = 0;
@@ -87,9 +92,8 @@ KeyType Trie::approxFind(KeyType & Str)
 		else
 			return check;
 	}
-	else {
+	else 
 		return WORD_NOT_FOUND;
-	}
 }
 
 //Prints the tree alphabeticlly
@@ -103,7 +107,7 @@ void Trie::printTree()
 	}
 }
 
-/*Gets a key and fix it - lower big letters, and delete every other sign
+/*Gets a key and fixes it - lowers big letters, and deletes every other sign
 Input: The key to fix
 Output: The fixed key*/
 void Trie::fixWord(KeyType & key)
@@ -112,12 +116,10 @@ void Trie::fixWord(KeyType & key)
 	char ch = key[index];
 
 	while (ch != '\0') {
-		if (ch >= 'a' && ch <= 'z') {}
-
-		else if (ch >= 'A' && ch <= 'Z') {
+		if (ch >= 'a' && ch <= 'z') {} // skips the small letter
+		else if (ch >= 'A' && ch <= 'Z') 
 			key[index] = tolower(key[index]);
-		}
-		else {
+		else { // a special sign
 			key = key.substr(0,index) + key.substr(index + 1);
 			index--;
 		}
@@ -126,7 +128,7 @@ void Trie::fixWord(KeyType & key)
 	}
 }
 
-/*Gets a paragraph keyType, and divide it to words. each time the original KeyType get smaller
+/*Gets a paragraph keyType, and divides it to words. Each time the original KeyType get smaller
 Input: The paragrap keyType(By ref)
 		The word keyType(By ref)
 Output: the word in newWord keyType*/
@@ -142,6 +144,7 @@ void Trie::oneWordAtATime(KeyType & original, KeyType & newWord)
 	}
 
 	newWord = original.substr(0, index);
+
 	if (len == 0)
 		original = "";
 	else

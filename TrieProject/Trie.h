@@ -20,6 +20,7 @@ typedef int DataType;
 class Trie {
 	trieNode* root;
 public:
+	//The basic dictionary functions 
 	Trie() { root = new trieNode; }
 	~Trie() { this->MakeEmpty();  delete root; }
 	void MakeEmpty();
@@ -27,6 +28,7 @@ public:
 	DataType Find(KeyType key);
 	void Insert(KeyType key, DataType data=0);
 	void Delete(KeyType key);
+	
 	KeyType approxFind(KeyType &Str);
 	void printTree();
 	void fixWord(KeyType& key);

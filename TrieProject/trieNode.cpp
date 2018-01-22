@@ -8,7 +8,7 @@ Eran Atia	  - ID 204122055
 
 #include "trieNode.h"
 
-/*Delete specific node according to keyType*/
+/*Deletes a specific node according to the keyType entered*/
 int trieNode::DeleteNode(KeyType key)
 {
 	trieNode* current;
@@ -28,11 +28,10 @@ int trieNode::DeleteNode(KeyType key)
 		}
 		else {
 			if (this->getData() > 0) // found a sub word 
-				this->resetData();
+				this->setData(0); //resets data
 			else 
-			{
 				return DONT_DELETE;
-			}
+			
 
 		}
 	}
@@ -55,14 +54,15 @@ int trieNode::DeleteNode(KeyType key)
 	else {
 		return DONT_DELETE;
 	}
+	return DONT_DELETE;
 
 }
 
-/*compare this key with a new Key that needs to be added to the trie.
+/*Compares this key with a new Key that needs to be added to the trie.
 Input: The new key to be added
 Output: returns index to check where to split the words.
 		whichKey(By ref) which indicates whos word is longer*/
-int trieNode::compareKeys(KeyType newKey, int& whichKey)
+int trieNode::compareKeys(KeyType newKey, int& whichKey) const
 {
 	int index=0;
 
@@ -74,24 +74,24 @@ int trieNode::compareKeys(KeyType newKey, int& whichKey)
 	}
 
 	if (newKey[index] == '\0' && this->getKey()[index] == '\0') //keys are equal
-	{
 		whichKey = EQUAL;
-	}
 	
-	else if (newKey[index] == '\0') //new key
-	{
+	else if (newKey[index] == '\0') //new key has the smaller prefix
 		whichKey = NEW_KEY;
-	}
-	else if(this->getKey()[index] == '\0') // original key 
-	{
+
+	else if(this->getKey()[index] == '\0') // original key has the smaller prefix
 		whichKey = OLD_KEY;
-	}
-	else { //both diffrent
+	
+	else  //both have a simillar prefix but are different from a specific index
 		whichKey = BOTH_KEYS;
-	}
+	
 	return index;
 }
 
+/* The additional function for the ''Insert''.
+The function updates the Trie accordingly for each of the four states:
+1)Keys are equal. 2)The given key is smaller than the current 3)Current key is smaller than the given key 
+4)Both keys have the same prefix but are different after a specific point */
 void trieNode::updateNode(KeyType key)
 {	
 	int index, whichKey;
@@ -99,18 +99,16 @@ void trieNode::updateNode(KeyType key)
 	KeyType endKeyOld, endKeyNew, beginKeyOld;
 	index = this->compareKeys(key, whichKey);
 	endKeyNew = key.substr(index);
-	if (whichKey == EQUAL) {
-		this->increaseData();
-	}
+	if (whichKey == EQUAL) 
+		this->setData(this->getData()+1);
 
 	else if (whichKey == OLD_KEY) {
 		current = this->getChild(key[index] - 'a');
-		if (current) {
+		if (current) 
 			current->updateNode(key.substr(index));
-		}
 		else {
 			this->setChild(key[index] - 'a', createNode(key, index));
-			this->getChild(key[index] - 'a')->increaseData();
+			this->getChild(key[index] - 'a')->setData(this->getChild(key[index] - 'a')->getData()+1); // increases data by 1
 		}
 	}
 
@@ -123,20 +121,17 @@ void trieNode::updateNode(KeyType key)
 		this->setData(1);
 		this->mergeChildren(nodeOld);
 		this->setChild(endKeyOld[0] - 'a', nodeOld);
-
-
 	}
 	else  // both keys haven't ended and have simillar start
 	{
-
 		endKeyOld = this->getKey().substr(index);
 		beginKeyOld = this->getKey().substr(0, index);
 		this->setKey(beginKeyOld);
 		nodeOld = createNode(endKeyOld, 0);
 		nodeOld->setData(this->getData());
 		nodeNew = createNode(endKeyNew, 0);
-		nodeNew->increaseData();
-		this->resetData();
+		nodeNew->setData(nodeNew->getData() + 1);//increases data by 1
+		this->setData(0); //resets data
 		this->mergeChildren(nodeOld);
 		this->setChild(endKeyOld[0] - 'a', nodeOld);
 		this->setChild(endKeyNew[0] - 'a', nodeNew);
@@ -150,6 +145,7 @@ trieNode* trieNode::createNode(KeyType _key, int startIndex)
 	return node;
 }
 
+//Merges the "children" ( the array of trieNodes) of a specific node with a new one
 void trieNode::mergeChildren(trieNode* node)
 {
 	trieNode* current;
@@ -162,8 +158,8 @@ void trieNode::mergeChildren(trieNode* node)
 	}
 }
 
-/*check if this node has children in array*/
-bool trieNode::hasChildren()
+//check if this node has children in array
+bool trieNode::hasChildren() const
 {
 	for (int i = 0; i < SIZE; i++) {
 		if (this->getChild(i)) 
@@ -172,7 +168,7 @@ bool trieNode::hasChildren()
 	return false;
 }
 
-void trieNode::printNode(string previous)
+void trieNode::printNode(string previous) const
 {
 	trieNode* current;
 	previous += this->getKey();
@@ -182,9 +178,9 @@ void trieNode::printNode(string previous)
 
 	for (int i = 0; i < SIZE; i++) {
 		current = this->getChild(i);
-		if (current) {
+		if (current) 
 			this->getChild(i)->printNode(previous);
-		}	
+			
 	}
 }
 
@@ -268,22 +264,19 @@ DataType trieNode::findRec(KeyType key)
 
 	index=this->compareKeys(key, whichKey);
 
-	if (whichKey == trieNode::EQUAL) {
+	if (whichKey == trieNode::EQUAL) 
 		return 	this->getData();
-	}
+
 	else if (whichKey == trieNode::OLD_KEY)
 	{
-		if (this->getChild(key[index] - 'a')) {
+		if (this->getChild(key[index] - 'a')) 
 			return this->getChild(key[index] - 'a')->findRec(key.substr(index));
-		}
-		else {
+		else 
 			return NOT_FOUND;
-		}
 	}
 
-	else {
+	else 
 		return NOT_FOUND;
-	}
 }
 
 void trieNode::makeEmptyRec()
