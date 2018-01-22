@@ -1,5 +1,14 @@
+/*
+Data structure
+Programming exrecise
+Trie ADT
+Martin Dechev - ID 302266911
+Eran Atia	  - ID 204122055
+*/
+
 #include "trieNode.h"
 
+/*Delete specific node according to keyType*/
 int trieNode::DeleteNode(KeyType key)
 {
 	trieNode* current;
@@ -13,7 +22,7 @@ int trieNode::DeleteNode(KeyType key)
 
 		childrenStatus = this->hasChildren();
 		if (!childrenStatus) // has no children
-		{//
+		{
 			delete this;
 			return DELETE_NODE;
 		}
@@ -49,9 +58,14 @@ int trieNode::DeleteNode(KeyType key)
 
 }
 
+/*compare this key with a new Key that needs to be added to the trie.
+Input: The new key to be added
+Output: returns index to check where to split the words.
+		whichKey(By ref) which indicates whos word is longer*/
 int trieNode::compareKeys(KeyType newKey, int& whichKey)
 {
 	int index=0;
+
 	while (newKey[index] != '\0' && this->getKey()[index] != '\0') {
 		if (newKey[index] == this->getKey()[index])
 			index++;
@@ -59,21 +73,20 @@ int trieNode::compareKeys(KeyType newKey, int& whichKey)
 			break;
 	}
 
-
 	if (newKey[index] == '\0' && this->getKey()[index] == '\0') //keys are equal
 	{
 		whichKey = EQUAL;
 	}
 	
-	else if (newKey[index] == '\0') 
+	else if (newKey[index] == '\0') //new key
 	{
-		whichKey = 1;
+		whichKey = NEW_KEY;
 	}
 	else if(this->getKey()[index] == '\0') // original key 
 	{
 		whichKey = OLD_KEY;
 	}
-	else {
+	else { //both diffrent
 		whichKey = BOTH_KEYS;
 	}
 	return index;
@@ -149,6 +162,7 @@ void trieNode::mergeChildren(trieNode* node)
 	}
 }
 
+/*check if this node has children in array*/
 bool trieNode::hasChildren()
 {
 	for (int i = 0; i < SIZE; i++) {
@@ -170,8 +184,7 @@ void trieNode::printNode(string previous)
 		current = this->getChild(i);
 		if (current) {
 			this->getChild(i)->printNode(previous);
-		}
-			
+		}	
 	}
 }
 
@@ -229,7 +242,10 @@ KeyType trieNode::approxFindRec(KeyType& Str,bool& isData)
 	return "0";
 }
 
-void trieNode::findFirstSon(trieNode * current, KeyType & previous)
+/*when using approxFind, if the word was not found prints similar word alphabeticlly
+Input: the cuurent node
+Output: previous (By ref) - the word to print*/
+void trieNode::findFirstSon(trieNode* current, KeyType & previous)
 {
 	bool flag = 0;
 	while (current->getData() == 0) {
@@ -243,10 +259,7 @@ void trieNode::findFirstSon(trieNode * current, KeyType & previous)
 		}
 		if(flag==0)
 			previous = WORD_NOT_FOUND;
-
 	}
-
-
 }
 
 DataType trieNode::findRec(KeyType key)
@@ -266,14 +279,11 @@ DataType trieNode::findRec(KeyType key)
 		else {
 			return NOT_FOUND;
 		}
-		
 	}
 
-	else 
-	{
+	else {
 		return NOT_FOUND;
 	}
-
 }
 
 void trieNode::makeEmptyRec()

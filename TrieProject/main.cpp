@@ -1,15 +1,23 @@
+/*
+Data structure
+Programming exrecise
+Trie ADT
+Martin Dechev - ID 302266911
+Eran Atia	  - ID 204122055
+*/
+
 #include <iostream>
 #include "Trie.h"
 #include "trieNode.h"
 using namespace std;
-
-
 
 int main() {
 
 	Trie T;
 	KeyType user_Input,currentWord = "";
 
+
+	//Scan for the first paragraph
 	while (currentWord !=".") {
 		getline(cin, user_Input);
 		while (user_Input != "") {
@@ -25,6 +33,7 @@ int main() {
 
 	currentWord = "";
 
+	//Scan for the second paragraph
 	while (currentWord != ".") {
 
 		getline(cin, user_Input);

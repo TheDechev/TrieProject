@@ -1,5 +1,12 @@
-#include "Trie.h"
+/*
+Data structure
+Programming exrecise
+Trie ADT
+Martin Dechev - ID 302266911
+Eran Atia	  - ID 204122055
+*/
 
+#include "Trie.h"
 
 void Trie::MakeEmpty()
 {
@@ -24,8 +31,6 @@ DataType Trie::Find(KeyType key)
 	else {
 		return 0;
 	}
-
-	
 }
 
 void Trie::Insert(KeyType key, DataType data)
@@ -34,6 +39,7 @@ void Trie::Insert(KeyType key, DataType data)
 	char ch;
 	int index = 0, whichKey = 0;
 	ch = key[index];
+
 	while(ch!='\0'){
 		current = root->getChild(ch - 'a');
 		if (current) // there's a child in this space
@@ -49,7 +55,6 @@ void Trie::Insert(KeyType key, DataType data)
 			break;
 		}
 	}
-
 }
 
 void Trie::Delete(KeyType key)
@@ -60,7 +65,6 @@ void Trie::Delete(KeyType key)
 		cout << "No such child to delete" << endl;
 	else 
 		current->DeleteNode(key);
-	
 }
 
 KeyType Trie::approxFind(KeyType & Str)
@@ -86,9 +90,9 @@ KeyType Trie::approxFind(KeyType & Str)
 	else {
 		return WORD_NOT_FOUND;
 	}
-
 }
 
+//Prints the tree alphabeticlly
 void Trie::printTree()
 {
 	trieNode* current;
@@ -99,10 +103,14 @@ void Trie::printTree()
 	}
 }
 
+/*Gets a key and fix it - lower big letters, and delete every other sign
+Input: The key to fix
+Output: The fixed key*/
 void Trie::fixWord(KeyType & key)
 {
 	int index = 0;
 	char ch = key[index];
+
 	while (ch != '\0') {
 		if (ch >= 'a' && ch <= 'z') {}
 
@@ -118,6 +126,10 @@ void Trie::fixWord(KeyType & key)
 	}
 }
 
+/*Gets a paragraph keyType, and divide it to words. each time the original KeyType get smaller
+Input: The paragrap keyType(By ref)
+		The word keyType(By ref)
+Output: the word in newWord keyType*/
 void Trie::oneWordAtATime(KeyType & original, KeyType & newWord)
 {
 	int len = original.length();
@@ -134,7 +146,4 @@ void Trie::oneWordAtATime(KeyType & original, KeyType & newWord)
 		original = "";
 	else
 		original = original.substr(index + 1);
-
 }
-
-

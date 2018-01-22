@@ -1,3 +1,11 @@
+/*
+Data structure
+Programming exrecise
+Trie ADT
+Martin Dechev - ID 302266911
+Eran Atia	  - ID 204122055
+*/
+
 #ifndef _trieNode_H
 #define _trieNode_H
 
@@ -7,10 +15,11 @@ using namespace std;
 
 typedef string KeyType;
 typedef int DataType;
+
 #define WORD_NOT_FOUND "No such prefix available"
 #define WORD_FOUND "The word has been found"
-
 #define SIZE 26
+
 class trieNode {
 
 private:
@@ -27,20 +36,20 @@ public:
 	trieNode* getChild(int index) { return children[index]; }
 	void setChild(int index, trieNode* node) { children[index] = node; }
 	void increaseData() { data++; }
+	void setData(int newData) { data = newData; }
+	void resetData() { data = 0; }
+
 	int DeleteNode(KeyType key);
 	int compareKeys(KeyType newKey, int& whichKey);
 	void updateNode(KeyType key); 
 	trieNode* createNode(KeyType _key, int startIndex);
 	void mergeChildren(trieNode* node);
-	void resetData() { data = 0; }
 	bool hasChildren();
 	void printNode(string previous);
-	void setData(int newData) { data = newData;}
 	KeyType approxFindRec(KeyType& Str, bool& isData);
 	void findFirstSon(trieNode* current, KeyType& previous);
 	DataType findRec(KeyType key);
 	void makeEmptyRec();
-
 };
 
 #endif 

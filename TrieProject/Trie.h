@@ -1,3 +1,11 @@
+/*
+Data structure
+Programming exrecise
+Trie ADT
+Martin Dechev - ID 302266911
+Eran Atia	  - ID 204122055
+*/
+
 #ifndef _Trie_H
 #define _Trie_H
 
@@ -8,7 +16,6 @@ using namespace std;
 
 typedef string KeyType;
 typedef int DataType;
-
 
 class Trie {
 	trieNode* root;
